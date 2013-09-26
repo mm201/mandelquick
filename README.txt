@@ -1,0 +1,1 @@
+Simple Mandelbrot/Julia renderer I speedcoded in 30 mins.
