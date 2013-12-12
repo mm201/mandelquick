@@ -37,7 +37,7 @@ namespace mandelquick
                     Complex position = new Complex(real, imaginary);
                     int iterations = MandelPixel(position); //JuliaPixel(position, new Complex(-0.4d, 0.6d));
 
-                    if (iterations >= 256)
+                    if (iterations >= 1024)
                         left[x] = 0xff0000ff;
                     else
                         left[x] = ((uint) 0x00ffffff - (uint)(Math.Min(iterations * 4, 255)) * 0x00000101) | 0xff000000;
@@ -53,7 +53,7 @@ namespace mandelquick
         {
             int iterations = 0;
             Complex position2 = new Complex(0.0d, 0.0d);
-            while (iterations < 256 && position2.MagnitudeSquared < 16.0d)
+            while (iterations < 512 && position2.MagnitudeSquared < 4.0d)
             {
                 position2 *= position2;
                 position2 += position;
@@ -65,7 +65,7 @@ namespace mandelquick
         private int JuliaPixel(Complex position, Complex julia)
         {
             int iterations = 0;
-            while (iterations < 256 && position.MagnitudeSquared < 16.0d)
+            while (iterations < 1024 && position.MagnitudeSquared < 4.0d)
             {
                 position *= position;
                 position += julia;
