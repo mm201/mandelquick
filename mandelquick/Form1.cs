@@ -17,25 +17,38 @@ namespace mandelquick
         public Form1()
         {
             InitializeComponent();
-            fractal = new Bitmap(640, 480, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            int width = panel1.Width, height = panel1.Height;
+            MakeBitmap();
+        }
+
+        private void MakeBitmap()
+        {
+            if (fractal == null || fractal.Width != panel1.Width || fractal.Height != panel1.Height)
+            {
+                fractal = new Bitmap(panel1.Width, panel1.Height, 
+                    System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            }
         }
 
         private unsafe void btnRender_Click(object sender, EventArgs e)
         {
-            BitmapData fractalPtr = fractal.LockBits(new Rectangle(0, 0, 640, 480), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            MakeBitmap();
+            BitmapData fractalPtr = fractal.LockBits(new Rectangle(0, 0, panel1.Width, panel1.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            double width = (double)panel1.Width;
+            double height = (double)panel1.Height;
 
             byte* p = (byte*)fractalPtr.Scan0;
-            for (int y = 0; y < 480; y++)
+            for (int y = 0; y < panel1.Height; y++)
             {
                 uint* left = (uint *)&(p[y * fractalPtr.Stride]);
 
-                double imaginary = (double)(y - 240) / 160.0d;
+                double imaginary = ((double)y - height * 0.5d) / width * 4.0d;
 
-                for (int x = 0; x < 640; x++)
+                for (int x = 0; x < panel1.Width; x++)
                 {
-                    double real = (double)(x - 320) / 160.0d;
+                    double real = ((double)x - width * 0.5d) / width * 4.0d;
                     Complex position = new Complex(real, imaginary);
-                    int iterations = MandelPixel(position); //JuliaPixel(position, new Complex(-0.4d, 0.6d));
+                    int iterations = JuliaPixel(position, new Complex(-0.4d, 0.6d));
 
                     if (iterations >= 1024)
                         left[x] = 0xff0000ff;
@@ -79,7 +92,7 @@ namespace mandelquick
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
-            g.DrawImage(fractal, 0, 0);
+            g.DrawImage(fractal, 0, 0, panel1.Width, panel1.Height);
         }
     }
 
@@ -138,5 +151,21 @@ namespace mandelquick
                 return Math.Sqrt(MagnitudeSquared);
             }
         }
+    }
+
+    internal static class DpiHelper
+    {
+        private static float dpi = 0;
+
+        internal static float DPI(Control c, bool force = false)
+        {
+            if (!force && dpi > 0) return dpi;
+
+            using (System.Drawing.Graphics g = c.CreateGraphics())
+            {
+                return dpi = g.DpiX;
+            }
+        }
+
     }
 }
