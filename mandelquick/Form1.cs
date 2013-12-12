@@ -39,8 +39,10 @@ namespace mandelquick
 
                     if (iterations >= 1024)
                         left[x] = 0xff0000ff;
+                    else if (iterations >= 64)
+                        left[x] = ((uint)0x00ff0000 - (uint)(Math.Min((iterations - 64) / 4, 255)) * 0x00010000) | 0xff000000;
                     else
-                        left[x] = ((uint) 0x00ffffff - (uint)(Math.Min(iterations * 4, 255)) * 0x00000101) | 0xff000000;
+                        left[x] = ((uint)0x00ffffff - (uint)(Math.Min(iterations * 4, 255)) * 0x00000101) | 0xff000000;
                 }
             }
 
